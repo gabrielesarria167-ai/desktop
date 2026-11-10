@@ -69,6 +69,20 @@ Glass tints (the same everywhere, so chips and buttons read as one surface):
   subtitle, a meta chip (`HERO_CHIP_CLASS`: count · duration), primary "Play all", a
   glass shuffle button, then search, sort and secondary actions on the right. Under it,
   the glass list panel with virtualised `SongCardWithMenu` rows of 64px.
+- **Sidebar** (`src/widgets/sidebar`): 240px glass panel with labelled rows of 34px.
+  Icons take `accent-primary`, labels stay `text-primary`; the current page gets the
+  glass fill and the Fill icon. Order: search, Home, Equalizer, the Library shortcuts,
+  then the user's playlists. The account row at the foot opens settings.
+- **Player pill**: the mini player floats over the page, centred, at most 760px wide,
+  with the transport first. Pages keep `--page-inset-bottom` clear for it.
+- **Home**: "Recommended for you" leads with 250px cards tinted by their own blurred
+  cover and a one-line reason above the title. Every other row uses the 175px tiles
+  and a plain 20px heading, with no icon.
+- **Artist page**: the artist photo runs edge to edge under the header and fades into
+  the page backdrop; name, audience and actions sit on its lower edge.
+- **Equalizer page** (`/equalizer`): the ten bands as points on one accent curve over
+  a +12 / -12 dB grid. Each point is a vertical slider (drag, wheel, arrow keys,
+  double-click to zero). Presets live in one menu; an unsaved curve can be saved.
 - **Menus**: `DropdownMenu` from `@/shared/ui`. One line per item, icon on the left,
   `danger` for destructive items, `active` for the current one.
 - **Toasts**: `showToast(message, variant, { description })`. Keep the message short; put
