@@ -26,8 +26,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import type { Track } from "@/shared/types";
 import {
   useToast,
-  EntityHero,
-  HERO_TITLE_CLASS,
   HERO_SUBTITLE_CLASS,
   HERO_BUTTON_CLASS,
   HERO_GLASS_BUTTON_CLASS,
@@ -261,109 +259,111 @@ function ArtistContent() {
             <div
               ref={scrollRef}
               data-no-window-drag
-              className="relative z-10 h-full w-full min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain box-border pt-(--page-inset-top) pb-(--page-inset-bottom)"
+              className="relative z-10 h-full w-full min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain box-border pb-(--page-inset-bottom)"
               style={{ willChange: "scroll-position" }}
             >
-              <div className="pl-[16px] pr-[12px] pt-[8px]" data-no-window-drag>
-                <EntityHero
-                  contentClassName="self-stretch justify-center pt-0"
-                  actionsClassName="mt-[20px]"
-                  coverClassName="h-[144px] w-[144px] rounded-full bg-border-alpha-14"
-                  cover={
-                    data.coverUrl ? (
-                      <CoverImage
-                        src={data.coverUrl}
-                        alt={data.title}
-                        fill
-                        sizes="180px"
-                        className="object-cover"
-                        draggable={false}
-                      />
-                    ) : (
-                      <span className="text-[56px] font-[700] text-border-alpha-33">
-                        {data.title.charAt(0)}
-                      </span>
-                    )
-                  }
-                  title={
-                    <div className="flex items-center gap-[8px] min-w-0">
-                      <h1 className={HERO_TITLE_CLASS}>{data.title}</h1>
+              {/* the artist photo runs edge to edge under the header and fades into the page backdrop */}
+              <header
+                className={`relative flex flex-col justify-end px-[16px] pb-[20px] ${
+                  data.coverUrl ? "h-[400px]" : "h-[230px]"
+                }`}
+                data-no-window-drag
+              >
+                {data.coverUrl && (
+                  <div className="absolute inset-0 [mask-image:linear-gradient(to_bottom,black_50%,transparent)]">
+                    <CoverImage
+                      src={data.coverUrl}
+                      alt={data.title}
+                      fill
+                      sizes="100vw"
+                      className="object-cover object-[center_22%]"
+                      draggable={false}
+                    />
+                    {/* scrim so the name reads over a bright photo */}
+                    <div
+                      aria-hidden="true"
+                      className="absolute inset-0 bg-gradient-to-b from-transparent from-30% to-white/60 dark:to-black/60"
+                    />
+                  </div>
+                )}
+                <div className="relative flex min-w-0 flex-col gap-[14px]">
+                  <div className="flex flex-col gap-[4px]">
+                    <div className="flex min-w-0 items-center gap-[10px]">
+                      <h1 className="font-roboto-flex-heading m-0 text-[52px] leading-[1.1] text-text-primary line-clamp-1">
+                        {data.title}
+                      </h1>
                       {data.verified ? <VerifiedBadge /> : null}
                     </div>
-                  }
-                  subtitle={
-                    audienceLabel ? (
+                    {audienceLabel ? (
                       <p className={HERO_SUBTITLE_CLASS}>{audienceLabel}</p>
-                    ) : undefined
-                  }
-                  actions={
-                    <>
-                      <Button
-                        variant="primary"
-                        onClick={handlePlayAll}
-                        disabled={data.tracks.length === 0}
-                        className={`${HERO_BUTTON_CLASS} px-[22px]`}
-                      >
-                        <PlayFill size={16} />
-                        <span>{t("artist.play")}</span>
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        onClick={handleShufflePlay}
-                        disabled={data.tracks.length === 0}
-                        className={iconButtonClass}
-                        title={t("common.shuffle")}
-                      >
-                        <LuShuffle size={18} />
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        onClick={handleSaveToLibrary}
-                        className={iconButtonClass}
-                        title={
-                          inLibrary
-                            ? t("artist.remove_from_library")
-                            : t("artist.save_to_library")
-                        }
-                      >
-                        <AnimatePresence mode="wait" initial={false}>
-                          {inLibrary ? (
-                            <motion.span
-                              key="saved"
-                              initial={{ scale: 0.5, rotate: -20 }}
-                              animate={{ scale: 1, rotate: 0 }}
-                              exit={{ scale: 0.5, rotate: 20 }}
-                              transition={{ duration: 0.12 }}
-                              className="flex"
-                            >
-                              <FolderCheckFill size={18} />
-                            </motion.span>
-                          ) : (
-                            <motion.span
-                              key="unsaved"
-                              initial={{ scale: 0.5, rotate: -20 }}
-                              animate={{ scale: 1, rotate: 0 }}
-                              exit={{ scale: 0.5, rotate: 20 }}
-                              transition={{ duration: 0.12 }}
-                              className="flex"
-                            >
-                              <NewFolderLine size={18} />
-                            </motion.span>
-                          )}
-                        </AnimatePresence>
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        onClick={handleShare}
-                        className={iconButtonClass}
-                        title={t("artist.share")}
-                      >
-                        <ShareForwardLine size={18} />
-                      </Button>
-                    </>
-                  }
-                />
-              </div>
+                    ) : null}
+                  </div>
+                  <div className="flex items-center gap-[8px]">
+                    <Button
+                      variant="primary"
+                      onClick={handlePlayAll}
+                      disabled={data.tracks.length === 0}
+                      className={`${HERO_BUTTON_CLASS} px-[22px]`}
+                    >
+                      <PlayFill size={16} />
+                      <span>{t("artist.play")}</span>
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={handleShufflePlay}
+                      disabled={data.tracks.length === 0}
+                      className={iconButtonClass}
+                      title={t("common.shuffle")}
+                    >
+                      <LuShuffle size={18} />
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={handleSaveToLibrary}
+                      className={iconButtonClass}
+                      title={
+                        inLibrary
+                          ? t("artist.remove_from_library")
+                          : t("artist.save_to_library")
+                      }
+                    >
+                      <AnimatePresence mode="wait" initial={false}>
+                        {inLibrary ? (
+                          <motion.span
+                            key="saved"
+                            initial={{ scale: 0.5, rotate: -20 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            exit={{ scale: 0.5, rotate: 20 }}
+                            transition={{ duration: 0.12 }}
+                            className="flex"
+                          >
+                            <FolderCheckFill size={18} />
+                          </motion.span>
+                        ) : (
+                          <motion.span
+                            key="unsaved"
+                            initial={{ scale: 0.5, rotate: -20 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            exit={{ scale: 0.5, rotate: 20 }}
+                            transition={{ duration: 0.12 }}
+                            className="flex"
+                          >
+                            <NewFolderLine size={18} />
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={handleShare}
+                      className={iconButtonClass}
+                      title={t("artist.share")}
+                    >
+                      <ShareForwardLine size={18} />
+                    </Button>
+                  </div>
+                </div>
+              </header>
 
               <div className="relative z-10 pl-[16px] pr-[12px] pt-[28px]">
                 <div className="flex flex-col gap-[40px]">
