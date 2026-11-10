@@ -8,6 +8,7 @@ import ArtistPage from "@/features/artist/ui/ArtistPage";
 import CollectionPage from "@/features/collection/ui/CollectionPage";
 import LoginPage from "@/features/auth/ui/LoginPage";
 import PlayerPage from "@/features/player/ui/FullscreenPlayer";
+import EqualizerPage from "@/features/player/ui/EqualizerPage";
 import { FullscreenRouteContext } from "@/features/navigation/fullscreenRouteContext";
 import KeepAlivePage from "./KeepAlivePage";
 
@@ -59,6 +60,7 @@ export function AppRoutes() {
             <Route path="/library/local" element={<LocalTracksPage />} />
             <Route path="/artist" element={<ArtistPage />} />
             <Route path="/collection" element={<CollectionPage />} />
+            <Route path="/equalizer" element={<EqualizerPage />} />
             <Route path="/settings" element={<Navigate to="/" replace />} />
             <Route path={PLAYER_PATH} element={null} />
             <Route path="*" element={<Navigate to="/" replace />} />

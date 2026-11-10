@@ -1,4 +1,4 @@
-import { memo, useRef, useState } from "react";
+import { memo, useRef, useState, type RefObject } from "react";
 import { motion } from "framer-motion";
 import { AddLine, CheckLine, CloseLine } from "@mingcute/react";
 import { useTranslation } from "@/languages";
@@ -29,10 +29,51 @@ export interface EqualizerPickerProps {
 type EqTab = EqPresetCategory | "custom";
 const EQ_TABS: EqTab[] = [...EQ_PRESET_CATEGORIES, "custom"];
 
-const formatDb = (db: number) =>
+export const formatDb = (db: number) =>
   `${db > 0 ? "+" : ""}${Number.isInteger(db) ? db : db.toFixed(1)}`;
 
-const toRatio = (db: number) => (db - EQ_MIN_DB) / (EQ_MAX_DB - EQ_MIN_DB);
+export const toRatio = (db: number) =>
+  (db - EQ_MIN_DB) / (EQ_MAX_DB - EQ_MIN_DB);
+
+// drag, wheel, double-click-to-zero and arrow keys for one vertical band;
+// shared by the popover sliders and the equalizer page's curve points
+export function bandSliderHandlers(
+  trackRef: RefObject<HTMLElement | null>,
+  value: number,
+  onChange: (db: number) => void,
+) {
+  const setFromPointer = (clientY: number) => {
+    const rect = trackRef.current?.getBoundingClientRect();
+    if (!rect || rect.height <= 0) return;
+    const ratio = 1 - (clientY - rect.top) / rect.height;
+    const db = clampEqGain(EQ_MIN_DB + ratio * (EQ_MAX_DB - EQ_MIN_DB));
+    if (db !== value) onChange(db);
+  };
+
+  return {
+    onPointerDown: (event: React.PointerEvent<HTMLElement>) => {
+      event.stopPropagation();
+      event.currentTarget.setPointerCapture(event.pointerId);
+      setFromPointer(event.clientY);
+    },
+    onPointerMove: (event: React.PointerEvent<HTMLElement>) => {
+      if (event.currentTarget.hasPointerCapture(event.pointerId))
+        setFromPointer(event.clientY);
+    },
+    onDoubleClick: () => onChange(0),
+    onWheel: (event: React.WheelEvent<HTMLElement>) => {
+      event.stopPropagation();
+      onChange(clampEqGain(value + (event.deltaY < 0 ? 0.5 : -0.5)));
+    },
+    onKeyDown: (event: React.KeyboardEvent<HTMLElement>) => {
+      const delta =
+        event.key === "ArrowUp" ? 0.5 : event.key === "ArrowDown" ? -0.5 : 0;
+      if (!delta) return;
+      event.preventDefault();
+      onChange(clampEqGain(value + delta));
+    },
+  };
+}
 
 const chipClass =
   "relative flex h-[26px] min-w-0 items-center justify-center rounded-[6px] border-0 px-[6px] text-[11px] font-[600] transition-colors";
@@ -49,14 +90,6 @@ interface BandSliderProps {
 function BandSlider({ frequency, value, dimmed, onChange }: BandSliderProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const label = `${formatEqFrequency(frequency)} Hz`;
-
-  const setFromPointer = (clientY: number) => {
-    const rect = trackRef.current?.getBoundingClientRect();
-    if (!rect || rect.height <= 0) return;
-    const ratio = 1 - (clientY - rect.top) / rect.height;
-    const db = clampEqGain(EQ_MIN_DB + ratio * (EQ_MAX_DB - EQ_MIN_DB));
-    if (db !== value) onChange(db);
-  };
 
   const ratio = toRatio(value);
   const zero = toRatio(0);
@@ -88,31 +121,7 @@ function BandSlider({ frequency, value, dimmed, onChange }: BandSliderProps) {
           "group relative h-[112px] w-[18px] cursor-ns-resize touch-none outline-none transition-opacity",
           dimmed && "opacity-45",
         )}
-        onPointerDown={(event) => {
-          event.stopPropagation();
-          event.currentTarget.setPointerCapture(event.pointerId);
-          setFromPointer(event.clientY);
-        }}
-        onPointerMove={(event) => {
-          if (event.currentTarget.hasPointerCapture(event.pointerId))
-            setFromPointer(event.clientY);
-        }}
-        onDoubleClick={() => onChange(0)}
-        onWheel={(event) => {
-          event.stopPropagation();
-          onChange(clampEqGain(value + (event.deltaY < 0 ? 0.5 : -0.5)));
-        }}
-        onKeyDown={(event) => {
-          const delta =
-            event.key === "ArrowUp"
-              ? 0.5
-              : event.key === "ArrowDown"
-                ? -0.5
-                : 0;
-          if (!delta) return;
-          event.preventDefault();
-          onChange(clampEqGain(value + delta));
-        }}
+        {...bandSliderHandlers(trackRef, value, onChange)}
       >
         <div className="absolute inset-y-0 left-1/2 w-[4px] -translate-x-1/2 rounded-full bg-black/[0.08] dark:bg-white/[0.08]" />
         <div
