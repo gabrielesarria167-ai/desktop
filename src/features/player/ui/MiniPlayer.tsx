@@ -593,7 +593,7 @@ function MiniPlayer({
             : embedded
               ? `rounded-[12px] ${
                   hasPageBackdrop
-                    ? "bg-bg-glass dark:bg-black/20 backdrop-blur-[48px] backdrop-saturate-150"
+                    ? "liner-glass dark:bg-black/20 backdrop-blur-[48px] backdrop-saturate-150"
                     : "bg-bg-primary"
                 }`
               : "rounded-3xl border-[0.5px] border-border-tertiary bg-bg-primary"

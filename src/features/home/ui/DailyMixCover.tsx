@@ -12,18 +12,14 @@ export interface DailyMixCoverProps {
 
 const mixLabelStyle: React.CSSProperties = {
   fontFamily: "var(--font-roboto-flex), sans-serif",
-  fontWeight: 649,
-  fontVariationSettings:
-    "'wght' 649, 'XOPQ' 100, 'YTAS' 739, 'YTDE' -224, 'YTLC' 494, 'YTUC' 667, 'wdth' 151, 'opsz' 144",
+  fontWeight: 700,
   lineHeight: 0.8,
   letterSpacing: "-0.04em",
 };
 
 const mixNumberStyle: React.CSSProperties = {
   fontFamily: "var(--font-roboto-flex), sans-serif",
-  fontWeight: 523,
-  fontVariationSettings:
-    "'wght' 523, 'GRAD' 77, 'XOPQ' 148, 'XTRA' 548, 'YOPQ' 110, 'YTAS' 741, 'YTDE' -305, 'YTFI' 640, 'YTLC' 525, 'YTUC' 748, 'wdth' 121, 'opsz' 144",
+  fontWeight: 500,
   lineHeight: 0.8,
   letterSpacing: "-0.02em",
 };

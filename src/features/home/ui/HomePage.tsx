@@ -5,7 +5,9 @@ import HomePageSkeleton, { MixesSectionSkeleton } from "./HomePageSkeleton";
 import { usePopularTracksAllTime } from "../hooks/usePopularTracks";
 import { useListeningNow } from "../hooks/useListeningNow";
 import ListeningNowSection from "./ListeningNowSection";
+import BecauseYouLikeSection from "./BecauseYouLikeSection";
 import { useRecentlyPlayed } from "../hooks/useRecentlyPlayed";
+import { useBecauseYouLike } from "../hooks/useBecauseYouLike";
 import { useDailyMixes } from "../hooks/useDailyMixes";
 import { useMostSaved, usePopularAlbums } from "../hooks/useExploreCollections";
 import { useTranslation } from "@/languages";
@@ -15,6 +17,7 @@ import {
   AlbumFill,
   BookmarkFill,
   FireFill,
+  HeartFill,
   TrophyFill,
   TimeFill,
 } from "@mingcute/react";
@@ -30,6 +33,8 @@ export default function HomePage() {
   const { items: popularAlbums, isLoading: albumsLoading } = usePopularAlbums();
   const { items: mostSaved, isLoading: savedLoading } = useMostSaved();
   const { data: dailyMixes, isLoading: mixesLoading } = useDailyMixes();
+  const becauseYouLike = useBecauseYouLike(recentlyPlayed);
+  const hasBecauseYouLike = Boolean(becauseYouLike?.albums.length);
   const hasMixes = dailyMixes.length > 0;
   const firstAlbum = popularAlbums[0];
   const firstAlbumCover =
@@ -91,13 +96,28 @@ export default function HomePage() {
               />
             )}
 
+            {becauseYouLike && hasBecauseYouLike && (
+              <BecauseYouLikeSection
+                title={t("home.becauseYouLike", {
+                  name: becauseYouLike.artist,
+                })}
+                icon={<HeartFill className="w-6 h-6 text-accent-primary" />}
+                albums={becauseYouLike.albums}
+                headingMarginTop={
+                  hasMixesSlot || popularAlbums.length > 0
+                    ? "mt-[22px]"
+                    : "mt-0"
+                }
+              />
+            )}
+
             {listeningNow.length > 0 && (
               <ListeningNowSection
                 title={t("home.whatEveryonesOn")}
                 icon={<FireFill className="w-6 h-6 text-amber-500" />}
                 tracks={listeningNow}
                 headingMarginTop={
-                  hasMixesSlot || popularAlbums.length > 0
+                  hasMixesSlot || popularAlbums.length > 0 || hasBecauseYouLike
                     ? "mt-[22px]"
                     : "mt-0"
                 }

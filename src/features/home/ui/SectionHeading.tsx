@@ -10,9 +10,7 @@ export interface SectionHeadingProps {
 
 const headingStyle: CSSProperties = {
   fontFamily: "var(--font-roboto-flex), sans-serif",
-  fontWeight: 564,
-  fontVariationSettings:
-    "'wght' 564, 'GRAD' 105, 'XOPQ' 100, 'wdth' 134, 'opsz' 144",
+  fontWeight: 700,
 };
 
 export function SectionHeading({

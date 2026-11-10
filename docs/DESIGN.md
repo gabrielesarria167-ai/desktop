@@ -38,7 +38,8 @@ Glass tints (the same everywhere, so chips and buttons read as one surface):
 
 ## Type
 
-- Inter everywhere (`font-family: var(--font-inter)`), Montserrat only in the player.
+- SF Pro everywhere (`font-family: var(--font-inter)`, which now holds the SF Pro stack),
+  SF Pro Display for section headings (`var(--font-roboto-flex)`), Montserrat only in the player.
 - Hero title: `HERO_TITLE_CLASS` (30px heading font). Hero subtitle: `HERO_SUBTITLE_CLASS` (18px).
 - Body and list rows: 14px / 500 for titles, 13px tertiary for the second line.
 - Toast: 13px / 600 message, 12.5px tertiary description after a `·`.

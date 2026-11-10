@@ -191,14 +191,16 @@ function TrackCard({
   );
 }
 
-function AlbumCard({
+export function AlbumCard({
   item,
   index,
   showRanks,
+  large = false,
 }: {
   item: PopularItem & { type: "album" };
   index: number;
   showRanks?: boolean;
+  large?: boolean;
 }) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const navigate = useStableNavigate();
@@ -246,7 +248,7 @@ function AlbumCard({
 
   return (
     <div
-      className="group flex-shrink-0 w-[175px] cursor-pointer select-none"
+      className={`group flex-shrink-0 ${large ? "w-[378px]" : "w-[175px]"} cursor-pointer select-none`}
       onPointerDown={() => prefetchCollection("album", item.item.id)}
       onClick={handleClick}
       onContextMenu={handleContextMenu}
@@ -262,7 +264,7 @@ function AlbumCard({
             src={item.item.coverUrl}
             alt={item.item.title}
             fill
-            sizes="175px"
+            sizes={large ? "378px" : "175px"}
             className={`object-cover transition-all duration-300 group-hover:brightness-[1.15] ${
               imageLoaded ? "opacity-100" : "opacity-0"
             }`}
@@ -271,7 +273,9 @@ function AlbumCard({
         )}
       </div>
       <div className="flex flex-col mt-[8px]">
-        <span className="truncate text-[14px] font-[500] text-text-primary">
+        <span
+          className={`truncate text-text-primary ${large ? "text-[18px] font-[600]" : "text-[14px] font-[500]"}`}
+        >
           {item.item.title}
         </span>
         <div className="flex min-w-0 items-center overflow-hidden text-[13px] text-text-tertiary">
