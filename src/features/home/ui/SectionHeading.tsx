@@ -30,7 +30,7 @@ export function SectionHeading({
             </div>
           )}
           <h2
-            className="font-roboto-flex-heading text-text-primary text-[24px] m-0 leading-none tracking-tight"
+            className="font-roboto-flex-heading text-text-primary text-[20px] m-0 leading-none tracking-tight"
             style={headingStyle}
           >
             {title}

@@ -1,26 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import PopularTracksSection from "./PopularTracksSection";
 import DailyMixesSection from "./DailyMixesSection";
 import HomePageSkeleton, { MixesSectionSkeleton } from "./HomePageSkeleton";
 import { usePopularTracksAllTime } from "../hooks/usePopularTracks";
 import { useListeningNow } from "../hooks/useListeningNow";
 import ListeningNowSection from "./ListeningNowSection";
-import BecauseYouLikeSection from "./BecauseYouLikeSection";
+import RecommendedSection, { type RecommendedPick } from "./RecommendedSection";
 import { useRecentlyPlayed } from "../hooks/useRecentlyPlayed";
-import { useBecauseYouLike } from "../hooks/useBecauseYouLike";
+import { useBecauseYouLike, type AlbumItem } from "../hooks/useBecauseYouLike";
 import { useDailyMixes } from "../hooks/useDailyMixes";
 import { useMostSaved, usePopularAlbums } from "../hooks/useExploreCollections";
 import { useTranslation } from "@/languages";
 import { usePageBackdrop } from "@/shared/lib";
 import { useHomeBackdrop } from "../hooks/useHomeBackdrop";
-import {
-  AlbumFill,
-  BookmarkFill,
-  FireFill,
-  HeartFill,
-  TrophyFill,
-  TimeFill,
-} from "@mingcute/react";
+
+const MAX_RECOMMENDED = 10;
 
 export default function HomePage() {
   const { t } = useTranslation();
@@ -34,7 +28,6 @@ export default function HomePage() {
   const { items: mostSaved, isLoading: savedLoading } = useMostSaved();
   const { data: dailyMixes, isLoading: mixesLoading } = useDailyMixes();
   const becauseYouLike = useBecauseYouLike(recentlyPlayed);
-  const hasBecauseYouLike = Boolean(becauseYouLike?.albums.length);
   const hasMixes = dailyMixes.length > 0;
   const firstAlbum = popularAlbums[0];
   const firstAlbumCover =
@@ -48,7 +41,37 @@ export default function HomePage() {
     usesMixBackdrop ? { blur: 56, dim: 0.22 } : undefined,
   );
 
-  const hasMixesSlot = hasMixes || mixesLoading;
+  // albums by an artist you played, alternated with what is trending so the row
+  // is not one discography
+  const recommended = useMemo(() => {
+    const because = becauseYouLike?.albums ?? [];
+    const trending = popularAlbums.filter(
+      (entry): entry is AlbumItem => entry.type === "album",
+    );
+    const becauseReason = becauseYouLike
+      ? t("home.becauseYouLike", { name: becauseYouLike.artist })
+      : "";
+    const trendingReason = t("home.trendingBadge");
+    const seen = new Set<string>();
+    const picks: RecommendedPick[] = [];
+    const add = (album: AlbumItem | undefined, reason: string) => {
+      if (!album || seen.has(album.item.id)) return;
+      seen.add(album.item.id);
+      picks.push({ album, reason });
+    };
+    for (let i = 0; i < Math.max(because.length, trending.length); i++) {
+      add(because[i], becauseReason);
+      add(trending[i], trendingReason);
+    }
+    return picks.slice(0, MAX_RECOMMENDED);
+  }, [becauseYouLike, popularAlbums, t]);
+
+  // an album already shown as a pick is not repeated in Top Albums
+  const topAlbums = useMemo(() => {
+    const picked = new Set(recommended.map((pick) => pick.album.item.id));
+    return popularAlbums.filter((entry) => !picked.has(entry.item.id));
+  }, [popularAlbums, recommended]);
+
   const isDataLoading =
     tracksLoading ||
     allTimeLoading ||
@@ -73,81 +96,60 @@ export default function HomePage() {
       <div className="relative z-1 grid grid-cols-1 items-start w-full">
         {isReady && (
           <div className="col-start-1 row-start-1 w-full pb-[16px]">
+            <h1 className="font-roboto-flex-heading m-0 px-3 pt-[2px] text-[34px] leading-[1.2] text-text-primary">
+              {t("common.sidebar.home")}
+            </h1>
+
+            <RecommendedSection
+              title={t("home.recommended")}
+              picks={recommended}
+              headingMarginTop="mt-[18px]"
+            />
+
+            {recentlyPlayed && recentlyPlayed.length > 0 && (
+              <PopularTracksSection
+                title={t("home.jumpBackIn")}
+                items={recentlyPlayed}
+              />
+            )}
+
             {mixesLoading ? (
-              <MixesSectionSkeleton />
+              <div className="mt-[22px]">
+                <MixesSectionSkeleton />
+              </div>
             ) : (
               hasMixes && (
                 <div style={{ animation: "page-enter 200ms ease-out" }}>
-                  <DailyMixesSection
-                    mixes={dailyMixes}
-                    headingMarginTop="mt-0"
-                    accentCoverUrl={homeBackdrop.cover}
-                  />
+                  <DailyMixesSection mixes={dailyMixes} />
                 </div>
               )
             )}
 
-            {popularAlbums.length > 0 && (
+            {topAlbums.length > 0 && (
               <PopularTracksSection
                 title={t("home.popularAlbums")}
-                icon={<AlbumFill className="w-6 h-6 text-emerald-400" />}
-                items={popularAlbums}
-                headingMarginTop={hasMixesSlot ? "mt-[22px]" : "mt-0"}
-              />
-            )}
-
-            {becauseYouLike && hasBecauseYouLike && (
-              <BecauseYouLikeSection
-                title={t("home.becauseYouLike", {
-                  name: becauseYouLike.artist,
-                })}
-                icon={<HeartFill className="w-6 h-6 text-accent-primary" />}
-                albums={becauseYouLike.albums}
-                headingMarginTop={
-                  hasMixesSlot || popularAlbums.length > 0
-                    ? "mt-[22px]"
-                    : "mt-0"
-                }
+                items={topAlbums}
               />
             )}
 
             {listeningNow.length > 0 && (
               <ListeningNowSection
                 title={t("home.whatEveryonesOn")}
-                icon={<FireFill className="w-6 h-6 text-amber-500" />}
                 tracks={listeningNow}
-                headingMarginTop={
-                  hasMixesSlot || popularAlbums.length > 0 || hasBecauseYouLike
-                    ? "mt-[22px]"
-                    : "mt-0"
-                }
-              />
-            )}
-
-            {recentlyPlayed && recentlyPlayed.length > 0 && (
-              <PopularTracksSection
-                title={t("home.jumpBackIn")}
-                icon={<TimeFill className="w-6 h-6 text-sky-400" />}
-                items={recentlyPlayed}
-                headingMarginTop="mt-[22px]"
               />
             )}
 
             {popularTracksAllTime && popularTracksAllTime.length > 0 && (
               <PopularTracksSection
                 title={t("home.mostListened")}
-                icon={<TrophyFill className="w-6 h-6 text-yellow-500" />}
                 items={popularTracksAllTime}
-                headingMarginTop="mt-[22px]"
               />
             )}
 
             {mostSaved.length > 0 && (
               <PopularTracksSection
                 title={t("home.mostSaved")}
-                icon={<BookmarkFill className="w-6 h-6 text-rose-400" />}
                 items={mostSaved}
-                headingMarginTop="mt-[22px]"
               />
             )}
           </div>

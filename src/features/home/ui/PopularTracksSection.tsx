@@ -196,11 +196,14 @@ export function AlbumCard({
   index,
   showRanks,
   large = false,
+  reason,
 }: {
   item: PopularItem & { type: "album" };
   index: number;
   showRanks?: boolean;
   large?: boolean;
+  /** why it is recommended; turns the card into the large tinted pick */
+  reason?: string;
 }) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const navigate = useStableNavigate();
@@ -246,6 +249,68 @@ export function AlbumCard({
     );
   };
 
+  const menu = menuItems.length > 0 && (
+    <DropdownMenu
+      trigger={<span />}
+      items={menuItems}
+      open={menuOpen}
+      onOpenChange={handleMenuOpenChange}
+      position={menuPosition}
+    />
+  );
+
+  if (reason) {
+    return (
+      <div
+        className="group relative flex w-[250px] flex-shrink-0 cursor-pointer select-none flex-col gap-[16px] overflow-hidden rounded-xl bg-border-alpha-14 px-[24px] pt-[24px] pb-[22px]"
+        onPointerDown={() => prefetchCollection("album", item.item.id)}
+        onClick={handleClick}
+        onContextMenu={handleContextMenu}
+      >
+        {/* the card takes its colour from its own cover, blurred behind it */}
+        {item.item.coverUrl && (
+          <CoverImage
+            src={item.item.coverUrl}
+            alt=""
+            aria-hidden="true"
+            fill
+            sizes="250px"
+            className={`scale-150 object-cover blur-[36px] saturate-150 transition-opacity duration-300 ${
+              imageLoaded ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        )}
+        <div className="absolute inset-0 bg-black/45" aria-hidden="true" />
+        <div className="relative aspect-square w-full overflow-hidden rounded-md bg-white/10 shadow-[0_10px_28px_rgba(0,0,0,0.4)]">
+          {item.item.coverUrl && (
+            <CoverImage
+              src={item.item.coverUrl}
+              alt={item.item.title}
+              fill
+              sizes="202px"
+              className={`object-cover transition-all duration-300 group-hover:brightness-[1.15] ${
+                imageLoaded ? "opacity-100" : "opacity-0"
+              }`}
+              onLoad={() => setImageLoaded(true)}
+            />
+          )}
+        </div>
+        <div className="relative flex min-w-0 flex-col gap-[2px] text-white">
+          <span className="truncate text-[12px] font-[600] text-white/80">
+            {reason}
+          </span>
+          <span className="truncate text-[17px] font-[700]">
+            {item.item.title}
+          </span>
+          <span className="truncate text-[13px] text-white/80">
+            {item.item.artist}
+          </span>
+        </div>
+        {menu}
+      </div>
+    );
+  }
+
   return (
     <div
       className={`group flex-shrink-0 ${large ? "w-[378px]" : "w-[175px]"} cursor-pointer select-none`}
@@ -289,15 +354,7 @@ export function AlbumCard({
         </div>
       </div>
 
-      {menuItems.length > 0 && (
-        <DropdownMenu
-          trigger={<span />}
-          items={menuItems}
-          open={menuOpen}
-          onOpenChange={handleMenuOpenChange}
-          position={menuPosition}
-        />
-      )}
+      {menu}
     </div>
   );
 }
