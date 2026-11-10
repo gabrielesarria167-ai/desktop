@@ -63,11 +63,7 @@ import {
   CreatePlaylistModal,
   useModalStore,
 } from "@/features/library";
-import {
-  SettingsModal,
-  useHasPageBackdrop,
-  useClassicSurfaces,
-} from "@/features/settings";
+import { SettingsModal, useClassicSurfaces } from "@/features/settings";
 import { UpdateModal, UpdateToastBridge } from "@/features/updater";
 import { YoutubeSignInNotice } from "@/features/youtube-auth";
 
@@ -76,7 +72,7 @@ interface AppFrameProps {
 }
 
 const RIGHT_DRAWER_WIDTH = 440;
-const SIDEBAR_WIDTH = 58;
+const SIDEBAR_WIDTH = 240;
 const SHELL_EDGE_GAP = 6;
 const SEARCH_QUERY_CACHE_TTL_MS = 60_000;
 const LEGACY_LAYOUT_STORAGE_KEYS = [
@@ -709,7 +705,6 @@ export default function AppFrame({ children }: AppFrameProps) {
       (document.documentElement.getAttribute("data-theme") === "dark" ||
         (!document.documentElement.getAttribute("data-theme") &&
           window.matchMedia?.("(prefers-color-scheme: dark)")?.matches));
-  const hasPageBackdrop = useHasPageBackdrop();
   const classicSurfaces = useClassicSurfaces();
 
   return (
@@ -752,7 +747,7 @@ export default function AppFrame({ children }: AppFrameProps) {
       <div className="flex-1 min-h-0 flex flex-row w-full gap-1.5 overflow-hidden relative z-10">
         <aside
           ref={sidebarRef}
-          className="w-[58px] mt-[56px] shrink-0 z-[45] relative flex flex-col"
+          className="w-[240px] mt-[56px] shrink-0 z-[45] relative flex flex-col"
         >
           <Sidebar
             searchOpen={searchOpen}
@@ -765,8 +760,9 @@ export default function AppFrame({ children }: AppFrameProps) {
             className={cn(
               "flex-1 min-w-0 flex flex-col relative h-full overflow-hidden [--page-inset-top:56px]",
               "rounded-xl",
-              shouldShowMiniPlayer && hasPageBackdrop
-                ? "[--page-inset-bottom:64px] [--floating-inset-bottom:70px]"
+              // the player floats over the page as a pill, so the page keeps room for it
+              shouldShowMiniPlayer
+                ? "[--page-inset-bottom:88px] [--floating-inset-bottom:88px]"
                 : "[--page-inset-bottom:0px] [--floating-inset-bottom:0px]",
             )}
           >
@@ -821,7 +817,7 @@ export default function AppFrame({ children }: AppFrameProps) {
               ref={miniPlayerContainerRef}
               // Above the right drawer (z-50) so the player's volume/speed/queue
               // popups, which live in this stacking context, aren't hidden by it.
-              className={`relative z-[55] w-full shrink-0 ${hasPageBackdrop ? "-mt-[70px]" : ""}`}
+              className="relative z-[55] mx-auto -mt-[82px] mb-[12px] w-[min(760px,calc(100%-32px))] shrink-0"
             >
               <MiniPlayer
                 embedded
@@ -881,7 +877,7 @@ export default function AppFrame({ children }: AppFrameProps) {
               top: 6,
             }}
           >
-            <div className="w-[min(660px,calc(100vw-72px))] h-[54px] rounded-[8px] pointer-events-auto flex items-center px-[18px] gap-[14px] bg-bg-panel/95 border border-border-primary/50 backdrop-blur-2xl">
+            <div className="w-[min(660px,calc(100vw-264px))] h-[54px] rounded-[8px] pointer-events-auto flex items-center px-[18px] gap-[14px] bg-bg-panel/95 border border-border-primary/50 backdrop-blur-2xl">
               <span className="shrink-0 flex items-center justify-center text-text-tertiary">
                 <AnimatePresence mode="wait" initial={false}>
                   {searchLoading ? (
@@ -960,7 +956,7 @@ export default function AppFrame({ children }: AppFrameProps) {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -6, scale: 0.99 }}
                   transition={{ duration: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                  className="w-[min(660px,calc(100vw-72px))] mt-[8px] max-h-[500px] h-[500px] rounded-[8px] pointer-events-auto flex flex-col overflow-hidden bg-bg-panel/95 border border-border-primary/50 backdrop-blur-2xl"
+                  className="w-[min(660px,calc(100vw-264px))] mt-[8px] max-h-[500px] h-[500px] rounded-[8px] pointer-events-auto flex flex-col overflow-hidden bg-bg-panel/95 border border-border-primary/50 backdrop-blur-2xl"
                 >
                   <div className="flex gap-[6px] px-[14px] pt-[12px] pb-[6px] shrink-0 overflow-x-auto">
                     {filterKeys.map((key) => {
@@ -1073,7 +1069,7 @@ export default function AppFrame({ children }: AppFrameProps) {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -6, scale: 0.99 }}
                   transition={{ duration: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                  className="w-[min(660px,calc(100vw-72px))] mt-[8px] max-h-[480px] h-auto rounded-[8px] pointer-events-auto flex flex-col overflow-hidden bg-bg-panel/95 border border-border-primary/50 backdrop-blur-2xl"
+                  className="w-[min(660px,calc(100vw-264px))] mt-[8px] max-h-[480px] h-auto rounded-[8px] pointer-events-auto flex flex-col overflow-hidden bg-bg-panel/95 border border-border-primary/50 backdrop-blur-2xl"
                 >
                   <SearchHistoryList
                     onSelectQuery={handleSelectHistoryQuery}

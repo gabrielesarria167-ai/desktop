@@ -1,7 +1,6 @@
 import { memo } from "react";
 import { SidebarNavItems } from "./SidebarNavItems";
 import { SidebarSettingsButton } from "./SidebarSettingsButton";
-import { cn } from "@/shared/lib";
 
 export interface SidebarProps {
   searchOpen: boolean;
@@ -11,18 +10,17 @@ export interface SidebarProps {
 function Sidebar({ searchOpen, onSearchToggle }: SidebarProps) {
   return (
     <div
-      className={cn(
-        "h-full w-[58px] rounded-xl flex flex-col overflow-hidden border-none liner-glass",
-      )}
+      className="h-full w-[240px] rounded-xl flex flex-col overflow-hidden border-none liner-glass"
+      style={{ fontFamily: "var(--font-inter), sans-serif" }}
     >
-      <nav className="relative flex-1 flex flex-col items-center gap-[20px] pt-[16px]">
+      <nav className="flex-1 min-h-0 flex flex-col gap-[2px] overflow-y-auto px-[10px] pt-[10px] pb-[10px]">
         <SidebarNavItems
           searchOpen={searchOpen}
           onSearchToggle={onSearchToggle}
         />
       </nav>
 
-      <div className="pt-[16px] pb-[16px] shrink-0 flex flex-col justify-center items-center gap-[20px]">
+      <div className="shrink-0 px-[10px] pt-[6px] pb-[10px]">
         <SidebarSettingsButton />
       </div>
     </div>

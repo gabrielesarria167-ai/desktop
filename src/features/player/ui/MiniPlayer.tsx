@@ -526,7 +526,9 @@ function MiniPlayer({
   return (
     <div
       ref={miniPlayerRootRef}
-      className="relative h-[64px] w-full select-none"
+      className={`relative h-[64px] w-full select-none ${
+        embedded ? "rounded-full shadow-[0_12px_32px_rgba(0,0,0,0.28)]" : ""
+      }`}
     >
       <AnimatePresence>
         {volumeOpen && (
@@ -591,7 +593,7 @@ function MiniPlayer({
           usesRoundedStyle
             ? "rounded-full border-[0.5px] border-border-tertiary bg-bg-primary"
             : embedded
-              ? `rounded-[12px] ${
+              ? `rounded-full ${
                   hasPageBackdrop
                     ? "liner-glass dark:bg-black/20 backdrop-blur-[48px] backdrop-saturate-150"
                     : "bg-bg-primary"
@@ -688,11 +690,11 @@ function MiniPlayer({
         <div
           className={`relative grid h-full pointer-events-none ${
             embedded
-              ? "grid-cols-[280px_minmax(0,1fr)_260px]"
+              ? "grid-cols-[minmax(0,1fr)_auto] pl-[112px]"
               : "grid-cols-[286px_minmax(0,1fr)]"
           } ${!usesRoundedStyle && !embedded ? "pb-[4px]" : ""}`}
         >
-          <div className="flex h-full items-center gap-[16px] px-[18px] pt-[1px] pointer-events-none cursor-default">
+          <div className="flex h-full min-w-0 items-center gap-[16px] px-[18px] pt-[1px] pointer-events-none cursor-default">
             <div
               role="button"
               tabIndex={0}
@@ -784,11 +786,7 @@ function MiniPlayer({
             )}
           </div>
 
-          <div
-            className={`flex h-full items-center pl-[10px] pr-[18px] pointer-events-none ${
-              embedded ? "col-start-3" : ""
-            }`}
-          >
+          <div className="flex h-full items-center pl-[10px] pr-[18px] pointer-events-none">
             <div
               className={`ml-auto flex items-center gap-[2px] rounded-lg p-[3px] pointer-events-auto prevent-seek cursor-default ${
                 hasPageBackdrop
@@ -978,7 +976,12 @@ function MiniPlayer({
           </div>
         </div>
 
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        <div
+          className={`pointer-events-none absolute inset-0 flex items-center ${
+            // in the pill the transport leads, ahead of the track info
+            embedded ? "justify-start pl-[16px]" : "justify-center"
+          }`}
+        >
           <div
             className="pointer-events-auto flex items-center gap-[8px] prevent-seek cursor-default"
             onPointerDown={(e) => e.stopPropagation()}

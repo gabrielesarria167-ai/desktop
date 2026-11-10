@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import LibraryControls from "./LibraryControls";
@@ -145,6 +145,7 @@ function LikesPlaylistCard({
 
 export default function LibraryPage() {
   const navigate = useNavigate();
+  const { pathname, search } = useLocation();
   const { t } = useTranslation();
   const likesCover = useLikesCover();
   usePageBackdrop(likesCover, { blur: 56, dim: 0.22 });
@@ -223,14 +224,23 @@ export default function LibraryPage() {
     artistsLoading ||
     externalPlaylistsLoading;
 
+  // the url owns the tab, so the sidebar's Playlists / Albums / Artists links land on it
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    const tab = params.get("tab") as LibraryTab | null;
-    if (tab && ["all", "playlists", "albums", "artists"].includes(tab)) {
-      setActiveTab(tab);
-    }
-  }, []);
+    if (pathname !== "/library") return;
+    const tab = new URLSearchParams(search).get("tab") as LibraryTab | null;
+    setActiveTab(
+      tab && ["playlists", "albums", "artists"].includes(tab) ? tab : "all",
+    );
+  }, [pathname, search]);
+
+  const handleTabChange = useCallback(
+    (tab: LibraryTab) => {
+      navigate(tab === "all" ? "/library" : `/library?tab=${tab}`, {
+        replace: true,
+      });
+    },
+    [navigate],
+  );
 
   const filteredItems = useMemo(() => {
     let source: LibraryItemViewModel[];
@@ -397,7 +407,7 @@ export default function LibraryPage() {
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-[10px] px-[12px] pb-[10px]">
-            <LibraryTabs activeTab={activeTab} onChange={setActiveTab} />
+            <LibraryTabs activeTab={activeTab} onChange={handleTabChange} />
             <LibraryControls
               activeTab={activeTab}
               query={activeState.query}
